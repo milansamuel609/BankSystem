@@ -1,3 +1,5 @@
+package CodSoft;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,6 +21,10 @@ class ATM {
 
     public double checkBalance() {
         return account.getBalance();
+    }
+
+    public boolean hasInitialDeposit() {
+        return account.getBalance() > 0;
     }
 }
 
@@ -65,7 +71,11 @@ public class ATMInterface {
 
         withdrawButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                performWithdraw();
+                if (atm.hasInitialDeposit()) {
+                    performWithdraw();
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Please make an initial deposit before withdrawing.");
+                }
             }
         });
 
@@ -77,7 +87,11 @@ public class ATMInterface {
 
         balanceButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                checkBalance();
+                if (atm.hasInitialDeposit()) {
+                    checkBalance();
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Please make an initial deposit before checking balance.");
+                }
             }
         });
 
@@ -122,17 +136,28 @@ public class ATMInterface {
     }
 
     public static void main(String[] args) {
-        String initialBalanceStr = JOptionPane.showInputDialog("Enter the initial balance");
-        if (initialBalanceStr == null) {
-            JOptionPane.showMessageDialog(null, "Input canceled. Exiting.");
-            System.exit(0);
-        }
-
         double initialBalance = 0;
-        try {
-            initialBalance = Double.parseDouble(initialBalanceStr);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Invalid input. Setting initial balance to 0.");
+
+        // Loop until a valid initial balance is entered
+        while (true) {
+            String initialBalanceStr = JOptionPane.showInputDialog("Enter the initial balance (must be ₹100 or greater):");
+
+            if (initialBalanceStr == null) {
+                JOptionPane.showMessageDialog(null, "Input canceled. Exiting.");
+                System.exit(0);
+            }
+
+            try {
+                initialBalance = Double.parseDouble(initialBalanceStr);
+
+                if (initialBalance >= 100) {
+                    break; // Exit loop if valid input
+                } else {
+                    JOptionPane.showMessageDialog(null, "Initial balance must be ₹100 or greater than ₹100. Please enter a valid amount.");
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Invalid input. Please enter a valid number.");
+            }
         }
 
         UserAccount account = new UserAccount(initialBalance);
